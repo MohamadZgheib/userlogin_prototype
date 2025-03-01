@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Dynamic Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .hidden {
+            display: none;
+        }
+        .select2-container {
+            width: 100% !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-3">
+    <form id="dynamicForm">
+        <div class="mb-3 row">
+            <label for="systemSelect" class="col-form-label col-md-3">Select System</label>
+            <div class="col-md-9">
+                <select class="form-select" id="systemSelect">
+                    <option value="">Select a system</option>
+                    <option value="GOSI System 1">GOSI System 1</option>
+                    <option value="GOSI System 2">GOSI System 2</option>
+                    <option value="GOSI System 3">GOSI System 3</option>
+                    <option value="System 4">System 4</option>
+                    <option value="Medallia">Medallia</option>
+                </select>
+            </div>
+        </div>
+        <div id="medalliaFields" class="hidden">
+            <div class="mb-3 row">
+                <label for="employeeId" class="col-form-label col-md-3">Employee ID</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="employeeId">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <div class="col-md-12">
+                    <button type="button" id="fetchEmployeeInfo" class="btn btn-primary" disabled>Bring Employee Information</button>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="firstName" class="col-form-label col-md-3">First Name</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="firstName" disabled>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="lastName" class="col-form-label col-md-3">Last Name</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="lastName" disabled>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="email" class="col-form-label col-md-3">Email</label>
+                <div class="col-md-9">
+                    <input type="email" class="form-control" id="email" disabled>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="language" class="col-form-label col-md-3">Language</label>
+                <div class="col-md-9">
+                    <input type="text" class="form-control" id="language" disabled>
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="primaryRole" class="col-form-label col-md-3">Primary Role</label>
+                <div class="col-md-9">
+                    <select class="form-select" id="primaryRole">
+                        <option value="">Select a role</option>
+                        <option value="[CX] Services">[CX] Services</option>
+                        <option value="[CX] Assisted Channels">[CX] Assisted Channels</option>
+                        <option value="[CX] Self-Service Channels">[CX] Self-Service Channels</option>
+                        <option value="[CX] Relationship">[CX] Relationship</option>
+                        <option value="[CX] Line Manager">[CX] Line Manager</option>
+                        <option value="[CX] Insights">[CX] Insights</option>
+                    </select>
+                </div>
+            </div>
+            <div id="dataAccessPrimary" class="hidden"></div>
+            <div class="mb-3 row hidden" id="secondaryRoleContainer">
+                <label for="secondaryRole" class="col-form-label col-md-3">Secondary Roles</label>
+                <div class="col-md-9">
+                    <select class="form-select" id="secondaryRole" multiple="multiple">
+                        <!-- Options added dynamically -->
+                    </select>
+                </div>
+            </div>
+            <div id="dataAccessSecondary"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.full.min.js"></script>
+<script src="dynamicForm.js"></script>
+</body>
+</html>

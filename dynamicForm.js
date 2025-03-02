@@ -11,9 +11,9 @@ $(document).ready(function() {
         $('#medalliaFields').toggleClass('hidden', !show);
     }
 
-    // Sanitize ID by removing invalid characters
+    // Sanitize ID by removing invalid characters and replacing special characters
     function sanitizeId(id) {
-        return id.replace(/[\[\] ]/g, ''); // Remove `[`, `]`, and spaces
+        return id.replace(/[\[\] &]/g, '-'); // Replace `[`, `]`, spaces, and `&` with `-`
     }
 
     // Handle Employee ID input and autofill data
@@ -161,64 +161,43 @@ $(document).ready(function() {
                         'Beneficiary'
                     ]
                 }
-            },
-            '[CX] Line Manager': {
-                fields: ['Survey Type'],
-                options: {
-                    'Survey Type': [
-                        'All',
-                        'Services',
-                        'Channels',
-                        'Relationship'
-                    ]
-                }
-            },
-            '[CX] Insights': {
-                fields: ['Episode Name', 'Survey Type', 'Channel Name', 'Respondent Type'],
-                options: {
-                    'Episode Name': [
-                        'All',
-                        'Basic Inquiry or Information Access',
-                        'Certificate or Document Request',
-                        'Complaint, Objection, Appeal, Suggestion',
-                        'Completing Monthly Contribution Payment',
-                        'Completing Voluntary Contribution Payment',
-                        'Modification of Administrative Details on Your Profile or Account with GOSI',
-                        'Online or Mobile Account Activation',
-                        'Other Requests Coming from GOSI',
-                        'Receiving the Benefit Payment',
-                        'Registration for Core Services',
-                        'Requests from GOSI for Compliance or Addressing Violations',
-                        'Termination or Suspension of Registration with GOSI',
-                        'Value-Added Services & Offers, such as Taqdeer, Events, Experience Paths, Loan Offers'
-                    ],
-                    'Survey Type': [
-                        'All',
-                        'Services',
-                        'Channels',
-                        'Relationship'
-                    ],
-                    'Channel Name': [
-                        'All',
-                        'Customer Service Toll-Free Number',
-                        'Live Chat',
-                        'Digital Human (Ask Ameen)',
-                        'GOSI Mobile App',
-                        'GOSI Individuals Web Portal',
-                        'GOSI Business Web Portal'
-                    ],
-                    'Respondent Type': [
-                        'All',
-                        'Contributor',
-                        'Employer',
-                        'Beneficiary'
-                    ]
-                }
             }
         };
 
-        if (accessFields[role]) {
-            let fieldsHtml = `<h5 class="mt-3">${role} Access</h5>`;
+        const noAccessRoles = [
+            '[CX] Insights',
+            '[EX] Insights',
+            '[CX+EX] Insights',
+            '[CX] Agents & Processors',
+            '[CX] Line Manager',
+            '[EX] Line Manager',
+            '[EX] Manager of Managers'
+        ];
+
+        // Check if the role already exists in the container
+        if ($(`#dataAccess${containerId} #role-${sanitizeId(role)}`).length) {
+            console.log(`Role ${role} already exists in the container. Skipping.`);
+            return;
+        }
+
+        if (noAccessRoles.includes(role)) {
+            let message = '';
+            if (role.includes('Insights')) {
+                message = `All ${role} Records`;
+            } else {
+                message = 'These roles do not require manual data selection. However, their data view is automatically determined by their position within the organizational hierarchy.';
+            }
+            // Append the message with a unique ID for the role, including a header and horizontal line
+            $(`#dataAccess${containerId}`).append(`
+                <div id="role-${sanitizeId(role)}">
+                    <h5 class="mt-3">${role} Access</h5>
+                    <div class="alert alert-info">${message}</div>
+                    <hr>
+                </div>
+            `);
+            console.log(`No access fields for role: ${role}, message displayed.`);
+        } else if (accessFields[role]) {
+            let fieldsHtml = `<div id="role-${sanitizeId(role)}"><h5 class="mt-3">${role} Access</h5>`;
             fieldsHtml += accessFields[role].fields.map(field => `
                 <div class="mb-3 row">
                     <label for="${sanitizeId(role + field)}" class="col-form-label col-md-3">${field}</label>
@@ -229,11 +208,9 @@ $(document).ready(function() {
                     </div>
                 </div>
             `).join('');
+            fieldsHtml += `<hr></div>`; // Add a horizontal line at the end
 
             // Append the fields to the container
-            if (containerId === 'Secondary') {
-                fieldsHtml = `<hr>` + fieldsHtml; // Add a separator line for secondary roles
-            }
             $(`#dataAccess${containerId}`).append(fieldsHtml);
             console.log(`Appended fields to container: #dataAccess${containerId}`);
 
@@ -262,8 +239,13 @@ $(document).ready(function() {
             '[CX] Assisted Channels',
             '[CX] Self-Service Channels',
             '[CX] Relationship',
+            '[CX] Insights',
+            '[EX] Insights',
+            '[CX+EX] Insights',
+            '[CX] Agents & Processors',
             '[CX] Line Manager',
-            '[CX] Insights'
+            '[EX] Line Manager',
+            '[EX] Manager of Managers'
         ];
         const options = roles.filter(role => role !== selectedPrimaryRole).map(role => `<option value="${role}">${role}</option>`).join('');
         $('#secondaryRole').html(options).trigger('change');
@@ -315,8 +297,19 @@ $(document).ready(function() {
     $('#secondaryRole').on('change', function() {
         const roles = $(this).val() || [];
         console.log(`Secondary roles selected: ${roles}`);
-        $('#dataAccessSecondary').empty(); // Clear existing fields for each change
-        roles.forEach(role => populateRoleDataAccess(role, 'Secondary'));
+
+        // Remove roles that are no longer selected
+        $(`#dataAccessSecondary > div`).each(function() {
+            const roleId = $(this).attr('id').replace('role-', '');
+            if (!roles.includes(`[${roleId}]`)) {
+                $(this).remove(); // Remove the role's content if it's no longer selected
+            }
+        });
+
+        // Add new roles that are selected
+        roles.forEach(role => {
+            populateRoleDataAccess(role, 'Secondary');
+        });
     });
 
     // Add a line between primary role data access and secondary role dropdown
